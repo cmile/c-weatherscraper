@@ -76,10 +76,10 @@ press = snippet_local[press_begin:press_end]
 
 #print('Pressure <b>',press,'</b>')
 
-rainradar_url = 'http://wind.met.fu-berlin.de/loops/radar_100/R.NEW.gif'
-rainradar_name = 'rainradar.gif'
+#rainradar_url = 'http://wind.met.fu-berlin.de/loops/radar_100/R.NEW.gif'
+#rainradar_name = 'rainradar.gif'
 #print('starting download procedure of rain-radar using ',rainradar_url)
-download(rainradar_url,rainradar_name) 
+#download(rainradar_url,rainradar_name) 
 
 solarweather_txt_url = 'http://www.swpc.noaa.gov/ftpdir/lists/particle/Gs_part_5m.txt'
 solarweather_txt_name = '5minute-table.txt'
@@ -105,7 +105,8 @@ fobj.write('Temperatur: <b> %s </b> <br />' % (temp))
 fobj.write('Wind von: <b> %s </b> <br />' % (wind))
 fobj.write('Wind mit <b> %s </b> <br />' % (w_speed))
 fobj.write('Druck <b>%s</b> </p>' % (press))
-fobj.write('	</td>\n		<td><img src="/static/rainradar.gif" alt="Regenradar"></td>\n			<td><img src="/static/solar_img.jpg" alt="Sonne, live" width="500px"></td>\n		</tr>')
+#fobj.write('	</td>\n		<td><img src="/static/rainradar.gif" alt="Regenradar"></td>\n			<td><img src="/static/solar_img.jpg" alt="Sonne, live" width="500px"></td>\n		</tr>')
+fobj.write('	</td>\n		<td><img src="http://www.wetteronline.de/?pid=p_radar_map&ireq=true&src=radar/vermarktung/p_radar_map_forecast/forecastLoop/BRA/latestForecastLoop.gif" alt="Regenradar"></td>\n			<td><img src="/static/solar_img.jpg" alt="Sonne, live" width="576px"></td>\n		</tr>')
 fobj.write('	</table> \n')
 
 fobj.write('{% endblock content%}')
