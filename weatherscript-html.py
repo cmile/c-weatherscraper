@@ -3,13 +3,15 @@
 import urllib.request
 import time
 
+html_output_directory = "/home/c-beam/c-beam/c-beamd/cbeamd/templates/cbeamd/"
+img_output_directory = "/home/c-beam/c-beam/c-beamd/cbeamd/static"
+
 def download(url,targetname):
 	"""Copy the contents of a file from a given URL
 	to a local file.
 	"""
-#	import urllib
 	webFile = urllib.request.urlopen(url)
-	localFile = open(targetname, 'wb')
+	localFile = open("%s/%s" % (img_output_directory, targetname), 'wb')
 	localFile.write(webFile.read())
 	webFile.close()
 	localFile.close()
@@ -38,45 +40,45 @@ hours = date_and_time[3]
 minutes = date_and_time[4]
 seconds = date_and_time[5]
 
-print(' ')
-print('WEATHER CONDITIONS')
-print("captured at: %s.%s.%s %s:%s h %ssec" % (day, month, year, hours, minutes, seconds))
-print('captured at base of main-antenna')
-print(' ')
-
-print('Bedingungen',condition)
+#print(' ')
+#print('WEATHER CONDITIONS')
+#print("captured at: %s.%s.%s %s:%s h %ssec" % (day, month, year, hours, minutes, seconds))
+#print('captured at base of main-antenna')
+#print(' ')
+#
+#print('Bedingungen',condition)
 
 temp_zahl = snippet_local.find('head_tt2')
 temp_begin = snippet_local.find('>',temp_zahl) + 1
 temp_end = snippet_local.find('</p>',temp_zahl)
 temp = snippet_local[temp_begin:temp_end]
 
-print('Temperature <b>',temp,' °C</b>')
+#print('Temperature <b>',temp,' °C</b>')
 
 wind_zahl = snippet_local.find('wind32px')
 wind_begin = snippet_local.find('alt="',wind_zahl) + 5
 wind_end = snippet_local.find('" title',wind_zahl)
 wind = snippet_local[wind_begin:wind_end]
 
-print('Wind from <b>',wind,' </b>')
+#print('Wind from <b>',wind,' </b>')
 
 w_speed_zahl = snippet_local.find('head_ff2')
 w_speed_begin = snippet_local.find('>',w_speed_zahl) + 1
 w_speed_end = snippet_local.find('</p>',w_speed_zahl)
 w_speed = snippet_local[w_speed_begin:w_speed_end]
 
-print('Wind with <b>',w_speed,'</b>')
+#print('Wind with <b>',w_speed,'</b>')
 
 press_zahl = snippet_local.find('head_ppp2')
 press_begin = snippet_local.find('>', press_zahl) + 1
 press_end = snippet_local.find('</p>', press_begin)
 press = snippet_local[press_begin:press_end]
 
-print('Pressure <b>',press,'</b>')
+#print('Pressure <b>',press,'</b>')
 
 rainradar_url = 'http://wind.met.fu-berlin.de/loops/radar_100/R.NEW.gif'
 rainradar_name = 'rainradar.gif'
-print('starting download procedure of rain-radar using ',rainradar_url)
+#print('starting download procedure of rain-radar using ',rainradar_url)
 download(rainradar_url,rainradar_name) 
 
 solarweather_txt_url = 'http://www.swpc.noaa.gov/ftpdir/lists/particle/Gs_part_5m.txt'
@@ -87,23 +89,26 @@ download(solarweather_txt_url,solarweather_txt_name)
 solar_img_begin = snippet_solar.find('href="') + 6
 solar_img_end = snippet_solar.find('">',solar_img_begin)
 solar_img = 'http://sdo.gsfc.nasa.gov' + snippet_solar[solar_img_begin:solar_img_end]
-print('starting download procedure of solar weather image',solar_img)
+#print('starting download procedure of solar weather image',solar_img)
 download(solar_img,'solar_img.jpg')
 
-fobj = open("weather.html", "w") 
-fobj.write('<!DOCTYPE html>\n<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">\n    <style type="text/css">\n      body {\n        padding-top: 10px;\n      }\n      .tabelle {\n	width: 100%;\n	}\n      .solar {\n	color:#FFFFFF;\n	background-color:#333333;\n	}\n    </style>\n    <title>c-beam</title>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <meta name="description" content="">\n    <meta name="author" content="">\n    <script src="./c-beam_files/jquery.min.js"></script>\n    <script src="./c-beam_files/bootstrap-dropdown.js"></script>\n    <link href="./c-beam_files/cyborg.css" rel="stylesheet" type="text/css">\n    <script src="./c-beam_files/bootstrap.js"></script>\n    <link href="https://c-beam.cbrp3.c-base.org/static/c-base-bootstrap/css/bootstrap-responsive.css" rel="stylesheet">\n    <link href="https://c-beam.cbrp3.c-base.org/static/c-base-bootstrap/css/bootstrap.custom.css" rel="stylesheet">\n    <!-- link rel="shortcut icon" href="ico/favicon.ico" -->\n</head>\n<body>\n  <div class="container">\n    <h1>nerdctrl status monitor</h1>\n    <hr><p></p>\n	<table class="tabelle">\n		<tr>\n<td valign="top">\n') 
+fobj = open("%s/weather.django" % html_output_directory, "w") 
 
-fobj.write('<p><b>WEATHER CONDITIONS</b><br />')
-fobj.write("captured at: %s.%s.%s %s:%s h %ssec <br />" % (day, month, year, hours, minutes, seconds))
-fobj.write('captured at base of main-antenna </p>')
+fobj.write('{% extends "cbeamd/nerdctrl.django" %}')
+fobj.write('{% block content %}')
+fobj.write('<h1>weather conditions</h1><br>')
+fobj.write("captured at: %s-%s-%s %s:%s h %ssec <br />" % (year, month, day, hours, minutes, seconds))
+fobj.write('captured location: base of main-antenna </p>')
 fobj.write("<p>")
 fobj.write("Bedingungen: <b> %s </b> <br />" % (condition))
-fobj.write('Temperature <b> %s </b> <br />' % (temp))
-fobj.write('Wind from <b> %s </b> <br />' % (wind))
-fobj.write('Wind with <b> %s </b> <br />' % (w_speed))
-fobj.write('Pressure <b>%s</b> </p>' % (press))
-fobj.write('	</td>\n		<td><img src="rainradar.gif" alt="Regenradar"></td>\n			<td><img src="solar_img.jpg" alt="Sonne, live" width="500px"></td>\n		</tr>')
-fobj.write('	</table> \n    <footer class="row"> \ncomputer says this is the footer and noooooo \n    </footer> \n  </div> <!-- container --> \n<script src="./c-beam_files/html5slider.js"></script> \n</body></html> \n ')
+fobj.write('Temperatur: <b> %s </b> <br />' % (temp))
+fobj.write('Wind von: <b> %s </b> <br />' % (wind))
+fobj.write('Wind mit <b> %s </b> <br />' % (w_speed))
+fobj.write('Druck <b>%s</b> </p>' % (press))
+fobj.write('	</td>\n		<td><img src="/static/rainradar.gif" alt="Regenradar"></td>\n			<td><img src="/static/solar_img.jpg" alt="Sonne, live" width="500px"></td>\n		</tr>')
+fobj.write('	</table> \n')
+
+fobj.write('{% endblock content%}')
 fobj.close()
 
 '''
